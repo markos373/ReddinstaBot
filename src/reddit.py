@@ -15,10 +15,25 @@ class RedditAPI:
                          )
 
     def get_hot(self,subreddits, N):
-        post_info = []
+        post_info = set()
+        
         for subreddit in subreddits:
-            
-            topN = self.api.subreddit(subreddit).hot(limit=N)
-            for post in topN:
-                post_info.append((post.title,post.url))
+            current_bound = 5
+            imgs_found = 0
+            while imgs_found < N:
+                topN = self.api.subreddit(subreddit).hot(limit=current_bound)
+                for post in topN:
+                    found_n = False
+                    for ext in valid_types:
+                        if ext in post.url:
+                            post_info.add((post.title,post.url))
+                            imgs_found += 1
+                            if imgs_found == N:
+                                found_n = True
+                                break
+                    if found_n:
+                        break
+                            
+                current_bound += 5
+
         return post_info

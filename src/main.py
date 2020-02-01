@@ -2,9 +2,28 @@
 import json
 import logging
 import sys
+import os
+import requests
 from reddit import RedditAPI
 
 CONFIGURATION_FILE_PATH = "redditapi.json"
+MEDIA_DIR               = "media/"
+
+def create_post_queue(submissions):
+    post_queue = []
+    for submission in submissions: 
+        fpath = os.path.join(MEDIA_DIR,submission[1].split('/')[-1])
+        f = open(fpath,'wb')
+        f.write(requests.get(submission[1]).content)
+        f.close()          #(fpath, submission)
+        post_queue.append((fpath,submission[0]))
+    return post_queue
+        
+def run_bot(post_queue):
+    for post in post_queue:
+        #currently have post_queue, figure out resetting logic
+
+
 
 if __name__ == "__main__":
 
@@ -24,10 +43,10 @@ if __name__ == "__main__":
         sys.exit()
 
     reddit_api = RedditAPI(client_id ,client_secret,user_agent)
-    for submission in reddit_api.get_hot(subreddits,1):
-        print(submission)
+    submissions = reddit_api.get_hot(subreddits,1)
+    create_post_queue(submissions)
     
-
+    
     logging.shutdown()
 '''
 0. If tobe_posted.txt is empty:
